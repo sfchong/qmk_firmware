@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 
 bool is_alt_tab_active = false;
+bool is_mac = true;
 
 enum layers {
   _BASE,
@@ -33,6 +34,10 @@ enum layers {
 
 enum custom_keycodes {
   ALT_TAB = SAFE_RANGE,
+  COPY,
+  PASTE,
+  CUT,
+  UNDO
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -55,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_LSFT,     KC_LCTL,     KC_LALT,     KC_LGUI,     KC_NO,                            KC_LEFT,     KC_DOWN,     KC_UP,       KC_RGHT,     KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_NO,       LGUI(KC_Z),  LGUI(KC_X),  LGUI(KC_C),  LGUI(KC_V),  KC_NO,                            KC_NO,       KC_INS,      KC_DEL,      KC_END,      KC_TRNS,     KC_NO,
+      KC_NO,       UNDO,        CUT,         COPY,        PASTE,       KC_NO,                            KC_NO,       KC_INS,      KC_DEL,      KC_END,      KC_TRNS,     KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
                                              KC_NO,       KC_NO,       KC_NO,                            KC_NO,       TO(_MOUSE),  KC_NO
                                          //`--------------------------------------'                    `--------------------------------------'
@@ -103,7 +108,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_LSFT,     KC_LCTL,     KC_LALT,     KC_LGUI,     KC_BTN5,                          KC_MS_L,     KC_MS_D,     KC_MS_U,     KC_MS_R,     KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_NO,       LGUI(KC_Z),  LGUI(KC_X),  LGUI(KC_C),  LGUI(KC_V),  KC_NO,                            KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,
+      KC_NO,       UNDO,        CUT,         COPY,        PASTE,       KC_NO,                            KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
                                              KC_NO,       TO(_BASE),   KC_NO,                            KC_NO,       TO(_BASE),   KC_NO
                                          //`--------------------------------------'                    `--------------------------------------'
@@ -134,9 +139,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 
+// Unregister super alt tab macro when layer change
 layer_state_t layer_state_set_user(layer_state_t state) {
     if (is_alt_tab_active) {
-        unregister_code(KC_LGUI);
+        if (is_mac) {
+            unregister_code(KC_LGUI);
+        } else {
+            unregister_code(KC_LALT);
+        }
         is_alt_tab_active = false;
     }
     return state;
@@ -267,16 +277,67 @@ bool oled_task_user(void) {
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode){
+    switch (keycode) {
         case ALT_TAB: // super alt tab macro
             if (record->event.pressed) {
                 if (!is_alt_tab_active) {
                     is_alt_tab_active = true;
-                    register_code(KC_LGUI);
+
+                    if (is_mac) {
+                        register_code(KC_LGUI);
+                    } else {
+                        register_code(KC_LALT);
+                    }                
                 }
                 register_code(KC_TAB);
             } else {
                 unregister_code(KC_TAB);
+            }
+            break;
+        case CG_SWAP:
+            if (record->event.pressed) {
+                is_mac = false;
+            }
+            break;
+        case CG_NORM:
+            if (record->event.pressed) {
+                is_mac = true;
+            }
+            break;
+        case COPY:
+            if (record->event.pressed) {
+                if (is_mac) {
+                    SEND_STRING(SS_LGUI("c"));
+                } else {
+                    SEND_STRING(SS_LCTL("c"));
+                }
+            }
+            break;
+        case PASTE:
+            if (record->event.pressed) {
+                if (is_mac) {
+                    SEND_STRING(SS_LGUI("v"));
+                } else {
+                    SEND_STRING(SS_LCTL("v"));
+                }
+            }
+            break;
+        case CUT:
+            if (record->event.pressed) {
+                if (is_mac) {
+                    SEND_STRING(SS_LGUI("x"));
+                } else {
+                    SEND_STRING(SS_LCTL("x"));
+                }
+            }
+            break;
+        case UNDO:
+            if (record->event.pressed) {
+                if (is_mac) {
+                    SEND_STRING(SS_LGUI("z"));
+                } else {
+                    SEND_STRING(SS_LCTL("z"));
+                }
             }
             break;
         return false; 
