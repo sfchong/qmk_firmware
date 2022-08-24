@@ -45,7 +45,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_TAB,      KC_Q,        KC_W,        KC_F,        KC_P,        KC_G,                             KC_J,        KC_L,        KC_U,        KC_Y,        KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_LCTL,     LSFT_T(KC_A),LCTL_T(KC_R),LCTL_T(KC_S),LGUI_T(KC_T),KC_D,                             KC_H,        RGUI_T(KC_N),RALT_T(KC_E),RCTL_T(KC_I),RSFT_T(KC_O),KC_NO,
+      KC_LCTL,     LSFT_T(KC_A),LCTL_T(KC_R),LALT_T(KC_S),LGUI_T(KC_T),KC_D,                             KC_H,        RGUI_T(KC_N),RALT_T(KC_E),RCTL_T(KC_I),RSFT_T(KC_O),KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_LSFT,     KC_Z,        KC_X,        KC_C,        KC_V,        KC_B,                             KC_K,        KC_M,        KC_COMM,     KC_DOT,      KC_SLSH,     KC_RSFT,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
@@ -86,7 +86,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_LSFT,     KC_UNDS,     KC_QUES,     KC_LT,       KC_GT,       KC_TILD,                          KC_BSLS,     KC_MINS,     KC_PLUS,     KC_LBRC,     KC_RBRC,     KC_RSFT,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-                                             KC_NO,       TO(_MOUSE),  KC_NO,                            KC_NO,       KC_NO,       KC_NO
+                                             KC_LGUI,     KC_NO,       KC_NO,                            KC_NO,       KC_NO,       KC_NO
                                          //`--------------------------------------'                    `--------------------------------------'
   ),
 
@@ -104,7 +104,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_MOUSE] = LAYOUT_split_3x6_3(
   //,------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_NO,       KC_NO,       KC_BTN3,     KC_BTN2,     KC_BTN1,     KC_BTN4,                          KC_WH_L,     KC_WH_D,     KC_WH_U,     KC_WH_R,     KC_NO,       KC_NO,
+      KC_NO,       KC_NO,       KC_BTN3,     KC_BTN1,     KC_BTN2,     KC_BTN4,                          KC_WH_L,     KC_WH_D,     KC_WH_U,     KC_WH_R,     KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_LSFT,     KC_LCTL,     KC_LALT,     KC_LGUI,     KC_BTN5,                          KC_MS_L,     KC_MS_D,     KC_MS_U,     KC_MS_R,     KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
@@ -154,11 +154,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case LSFT_T(KC_A):
-        case LCTL_T(KC_R):
         case RCTL_T(KC_I):
         case RSFT_T(KC_O):
-            return TAPPING_TERM + 100;
+            return TAPPING_TERM + 50;
         case LT(1,KC_SPC):
         case LT(2,KC_ESC):
         case LT(4,KC_ENT):
