@@ -40,6 +40,35 @@ enum custom_keycodes {
   UNDO
 };
 
+enum custom_td_key {
+    TD_LCTL_SYMBOL,
+};
+
+// Define a type containing as many tapdance states as you need
+typedef enum {
+    TD_NONE,
+    TD_UNKNOWN,
+    TD_SINGLE_TAP,
+    TD_SINGLE_HOLD,
+    TD_DOUBLE_SINGLE_TAP
+} td_state_t;
+
+// Create a global instance of the tapdance state type
+static td_state_t td_state;
+
+// Function to determine the current tapdance state
+td_state_t cur_dance(qk_tap_dance_state_t *state);
+
+// `finished` and `reset` functions for each tapdance keycode
+void lctl_symbol_finished(qk_tap_dance_state_t *state, void *user_data);
+void lctl_symbol_reset(qk_tap_dance_state_t *state, void *user_data);
+
+// Define `ACTION_TAP_DANCE_FN_ADVANCED()` for each tapdance keycode, passing in `finished` and `reset` functions
+qk_tap_dance_action_t tap_dance_actions[] = {
+    [TD_LCTL_SYMBOL]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, lctl_symbol_finished, lctl_symbol_reset)
+};
+
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_BASE] = LAYOUT_split_3x6_3(
   //,------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
@@ -82,7 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_EXLM,     KC_AT,       KC_HASH,     KC_DLR,      KC_LBRC,                          KC_RBRC,     KC_AMPR,     KC_ASTR,     KC_PIPE,     KC_BSLS,     KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_LCTL,     KC_TILD,     KC_QUES,     KC_COLN,     KC_SCLN,     KC_LPRN,                          KC_RPRN,     KC_EQL,      KC_QUOT,     KC_DQUO,     KC_SLSH,     KC_NO,
+      KC_LCTL,     KC_TILD,     TD(TD_LCTL_SYMBOL),KC_COLN,LGUI_T(KC_SCLN),KC_LPRN,                      KC_RPRN,     RGUI_T(KC_EQL),RALT_T(KC_QUOT),KC_DQUO,KC_SLSH,     KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_LSFT,     KC_UNDS,     KC_GRV,      KC_LT,       KC_GT,       KC_LCBR,                          KC_RCBR,     KC_MINS,     KC_PLUS,     KC_PERC,     KC_CIRC,     KC_RSFT,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
@@ -349,3 +378,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     return true;
 }
+
+// Determine the tapdance state to return
+td_state_t cur_dance(qk_tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        else return TD_SINGLE_HOLD;
+    }
+
+    if (state->count == 2) return TD_DOUBLE_SINGLE_TAP;
+    else return TD_UNKNOWN; // Any number higher than the maximum state value you return above
+}
+
+// Handle the possible states for each tapdance keycode you define:
+
+void lctl_symbol_finished(qk_tap_dance_state_t *state, void *user_data) {
+    td_state = cur_dance(state);
+    switch (td_state) {
+        case TD_SINGLE_TAP:
+            register_code16(KC_QUES);
+            break;
+        case TD_SINGLE_HOLD:
+            register_mods(MOD_BIT(KC_LCTL)); // For a layer-tap key, use `layer_on(_MY_LAYER)` here
+            break;
+        case TD_DOUBLE_SINGLE_TAP: // Allow nesting of 2 symbol `??` within tapping term
+            tap_code16(KC_QUES);
+            register_code16(KC_QUES);
+            break;
+        default:
+            break;
+    }
+}
+
+void lctl_symbol_reset(qk_tap_dance_state_t *state, void *user_data) {
+    switch (td_state) {
+        case TD_SINGLE_TAP:
+            unregister_code16(KC_QUES);
+            break;
+        case TD_SINGLE_HOLD:
+            unregister_mods(MOD_BIT(KC_LCTL)); // For a layer-tap key, use `layer_off(_MY_LAYER)` here
+            break;
+        case TD_DOUBLE_SINGLE_TAP:
+            unregister_code16(KC_QUES);
+            break;
+        default:
+            break;
+    }
+}
+
