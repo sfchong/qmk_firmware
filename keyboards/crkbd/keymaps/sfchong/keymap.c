@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 
 bool is_alt_tab_active = false;
+bool is_ctrl_tab_active = false;
 bool is_mac = true;
 
 enum layers {
@@ -34,6 +35,7 @@ enum layers {
 
 enum custom_keycodes {
   ALT_TAB = SAFE_RANGE,
+  CTRL_TAB,
   COPY,
   PASTE,
   CUT,
@@ -85,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_NAV] = LAYOUT_split_3x6_3(
   //,------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_NO,       LGUI(KC_GRV),ALT_TAB,     KC_NO,       KC_NO,       KC_NO,                            KC_TAB,      KC_PGDN,     KC_PGUP,     KC_HOME,     KC_CAPS,     KC_PSCR,
+      KC_NO,       LGUI(KC_GRV),ALT_TAB,     CTRL_TAB,    KC_NO,       KC_NO,                            KC_TAB,      KC_PGDN,     KC_PGUP,     KC_HOME,     KC_CAPS,     KC_PSCR,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_LSFT,     KC_LCTL,     KC_LALT,     KC_LGUI,     KC_NO,                            KC_LEFT,     KC_DOWN,     KC_UP,       KC_RGHT,     KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
@@ -178,14 +180,20 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         }
         is_alt_tab_active = false;
     }
+
+    if (is_ctrl_tab_active) {
+        unregister_code(KC_LCTL);
+        is_ctrl_tab_active = false;
+    }
+
     return state;
 }
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case RCTL_T(KC_I):
-        case RSFT_T(KC_O):
-            return TAPPING_TERM + 50;
+        // case RCTL_T(KC_I):
+        // case RSFT_T(KC_O):
+        //     return TAPPING_TERM + 50;
         case LT(1,KC_SPC):
         case LT(2,KC_ESC):
         case LT(4,KC_ENT):
@@ -321,6 +329,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_TAB);
             }
             break;
+        case CTRL_TAB:
+            if (record->event.pressed) {
+                if (!is_ctrl_tab_active) {
+                    is_ctrl_tab_active = true;
+
+                    register_code(KC_LCTL);                                
+                }
+                register_code(KC_TAB);
+            } else {
+                unregister_code(KC_TAB);
+            }
         case CG_SWAP:
             if (record->event.pressed) {
                 is_mac = false;
