@@ -340,6 +340,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else {
                 unregister_code(KC_TAB);
             }
+            break;
         case CG_SWAP:
             if (record->event.pressed) {
                 is_mac = false;
