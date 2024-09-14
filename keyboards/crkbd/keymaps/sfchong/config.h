@@ -30,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 200
 #define TAPPING_TERM_PER_KEY
 #define TAPPING_FORCE_HOLD
-#define IGNORE_MOD_TAP_INTERRUPT
 
 // Mouse key speed and acceleration.
 #undef MOUSEKEY_DELAY

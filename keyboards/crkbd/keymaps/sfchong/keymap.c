@@ -59,14 +59,14 @@ typedef enum {
 static td_state_t td_state;
 
 // Function to determine the current tapdance state
-td_state_t cur_dance(qk_tap_dance_state_t *state);
+td_state_t cur_dance(tap_dance_state_t *state);
 
 // `finished` and `reset` functions for each tapdance keycode
-void lctl_symbol_finished(qk_tap_dance_state_t *state, void *user_data);
-void lctl_symbol_reset(qk_tap_dance_state_t *state, void *user_data);
+void lctl_symbol_finished(tap_dance_state_t *state, void *user_data);
+void lctl_symbol_reset(tap_dance_state_t *state, void *user_data);
 
 // Define `ACTION_TAP_DANCE_FN_ADVANCED()` for each tapdance keycode, passing in `finished` and `reset` functions
-qk_tap_dance_action_t tap_dance_actions[] = {
+tap_dance_action_t tap_dance_actions[] = {
     [TD_LCTL_SYMBOL]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, lctl_symbol_finished, lctl_symbol_reset)
 };
 
@@ -103,7 +103,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_LSFT,     KC_LCTL,     KC_LALT,     KC_LGUI,     KC_NO,                            KC_GRV,      KC_4,        KC_5,        KC_6,        KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,                            KC_0,        KC_1,        KC_2,        KC_3,        KC_NO,       KC_NO,
+      KC_NO,       TO(_GAME),   KC_NO,       KC_NO,       KC_NO,       KC_NO,                            KC_0,        KC_1,        KC_2,        KC_3,        KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
                                              KC_NO,       KC_NO,       KC_NO,                            KC_NO,       KC_NO,       KC_NO
                                          //`--------------------------------------'                    `--------------------------------------'
@@ -129,7 +129,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       CG_SWAP,     KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,                            KC_F11,      KC_F12,      KC_NO,       KC_NO,       KC_NO,       KC_MUTE,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-                                             KC_NO,       KC_NO,       KC_NO,                            KC_NO,       KC_NO,       TO(_GAME)
+                                             KC_NO,       KC_NO,       KC_NO,                            KC_NO,       KC_NO,       KC_NO
                                          //`--------------------------------------'                    `--------------------------------------'
   ),
 
@@ -147,13 +147,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_GAME] = LAYOUT_split_3x6_3(
   //,------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_T,        KC_TAB,      KC_Q,        KC_W,        KC_E,        KC_R,                             KC_Y,        KC_U,        KC_I,        KC_O,        KC_P,        KC_BSPC,
+      KC_ESC,        KC_TAB,      KC_Q,        KC_W,        KC_E,        KC_R,                             KC_Y,        KC_U,        KC_I,        KC_O,        KC_P,        KC_BSPC,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_G,        KC_LCTL,     KC_A,        KC_S,        KC_D,        KC_F,                             KC_H,        KC_J,        KC_K,        KC_L,        KC_SCLN,     KC_QUOT, 
+      KC_G,        KC_LGUI,     KC_A,        KC_S,        KC_D,        KC_F,                             KC_H,        KC_J,        KC_K,        KC_L,        KC_SCLN,     KC_QUOT, 
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_B,        KC_LSFT,     KC_Z,        KC_X,        KC_C,        KC_V,                             KC_N,        KC_M,        KC_COMM,     KC_DOT,      KC_TRNS,     KC_RSFT, 
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-                                             KC_ESC,      KC_SPC,      MO(_GAME2),                       KC_ENT,      KC_BSPC,     TO(_BASE)
+                                             KC_LALT,      KC_SPC,      MO(_GAME2),                       KC_ENT,      KC_BSPC,     TO(_BASE)
                                          //`--------------------------------------'                    `--------------------------------------'
   ),
 
@@ -163,7 +163,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_5,                             KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_EQL,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
-      KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,                            KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,
+      KC_NO,       TO(_BASE),   KC_NO,       KC_NO,       KC_NO,       KC_NO,                            KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_NO,
   //|------------+------------+------------+------------+------------+------------|                    |------------+------------+------------+------------+------------+------------|
                                              KC_NO,       KC_NO,       KC_NO,                            KC_NO,       KC_NO,       KC_NO
                                          //`--------------------------------------'                    `--------------------------------------'
@@ -400,7 +400,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // Determine the tapdance state to return
-td_state_t cur_dance(qk_tap_dance_state_t *state) {
+td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 1) {
         if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
         else return TD_SINGLE_HOLD;
@@ -412,7 +412,7 @@ td_state_t cur_dance(qk_tap_dance_state_t *state) {
 
 // Handle the possible states for each tapdance keycode you define:
 
-void lctl_symbol_finished(qk_tap_dance_state_t *state, void *user_data) {
+void lctl_symbol_finished(tap_dance_state_t *state, void *user_data) {
     td_state = cur_dance(state);
     switch (td_state) {
         case TD_SINGLE_TAP:
@@ -430,7 +430,7 @@ void lctl_symbol_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void lctl_symbol_reset(qk_tap_dance_state_t *state, void *user_data) {
+void lctl_symbol_reset(tap_dance_state_t *state, void *user_data) {
     switch (td_state) {
         case TD_SINGLE_TAP:
             unregister_code16(KC_QUES);
